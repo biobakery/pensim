@@ -3,12 +3,14 @@
 \alias{pensim}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+Functions and data for simulation of high-dimensional data and
+parallelized penalized regression based on the penalized R package
+(Lasso, Ridge, Elastic Net).
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+Simulation of continuous, correlated high-dimensional data with
+time-to-event or binary response, and parallelized functions Lasso,
+Ridge, and Elastic Net penalized regression.
 }
 \details{
 \tabular{ll}{
@@ -16,24 +18,30 @@ Package: \tab pensim\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2011-01-20\cr
-License: \tab What license is it under?\cr
+License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+This package contains a function for simulation of correlated
+high-dimensional data with binary or time-to-event response, and
+functions for parallelized repeated optimizations of Lasso, Ridge, and
+Elastic Net penalized regression penalties.
 }
 \author{
-Who wrote it
+Levi Waldron
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Maintainer: Levi Waldron <lwaldron.research@gmail.com>
 }
 \references{
-~~ Literature or other references for background information ~~
+Waldron L., Pintilie M., Huttenhower C.*, and Jurisica I.*   Optimized
+application of penalized regression methods to diverse genomic
+data. (2010). Under review.  (*equal contribution)
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
-~~ the R documentation directory ~~
 \keyword{ package }
+\keyword{ survival }
+\keyword{ datagen }
+\keyword{ regression }
+\keyword{ multivariate }
+
 \seealso{
 ~~ Optional links to other man pages, e.g. ~~
 ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
