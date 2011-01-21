@@ -2,10 +2,13 @@
 \alias{opt2D}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Parallelized, two-dimensional tuning of Elastic Net L1/L2 penalty parameters
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+  This function implements parallelized two-dimensional optimization of Elastic Net
+  penalty parameters.  This is accomplished by scanning a regular grid
+  of L1/L2 penalties, then using the top five CVL penalty combinations
+  from this grid as starting points for the convex optimization problem.
 }
 \usage{
 opt2D(nsim, L1range = c(0.001, 100), L2range = c(0.001, 100), dofirst = "both", nprocessors = 1, L1gridsize = 10, L2gridsize = 10, ...)
@@ -13,48 +16,67 @@ opt2D(nsim, L1range = c(0.001, 100), L2range = c(0.001, 100), dofirst = "both", 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{nsim}{
-%%     ~~Describe \code{nsim} here~~
+    Number of times to repeat the simulation (around 50 is suggested)
 }
   \item{L1range}{
-%%     ~~Describe \code{L1range} here~~
+    numeric vector of length two, giving minimum and maximum constraints
+    on the L1 penalty
 }
   \item{L2range}{
-%%     ~~Describe \code{L2range} here~~
+    numeric vector of length two, giving minimum and maximum constraints
+    on the L2 penalty
 }
   \item{dofirst}{
-%%     ~~Describe \code{dofirst} here~~
+    "L1" to optimize L1 followed by L2, "L2" to optimize L2 followed by
+    L1, or "both" to optimize both simultaneously in a two-dimensional optimization.
 }
   \item{nprocessors}{
-%%     ~~Describe \code{nprocessors} here~~
+        An integer number of processors to use.
 }
   \item{L1gridsize}{
-%%     ~~Describe \code{L1gridsize} here~~
+    Number of values of the L1 penalty in the regular grid of L1/L2 penalties
 }
   \item{L2gridsize}{
-%%     ~~Describe \code{L2gridsize} here~~
+    Number of values of the L2 penalty in the regular grid of L1/L2 penalties
 }
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+    arguments passed on to optL1 and optL2 (dofirst="L1" or "L2"), or
+    cvl (dofirst="both") functions of the penalized R package
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+  This function sets up a SNOW (Simple Network of Workstations) "sock"
+  cluster to parallelize the task of repeated tunings the Elastic Net
+  penalty parameters.  Three methods are implemented, as described by
+  Waldron et al. (2011): lambda1 followed by lambda2 (lambda1-lambda2),
+  lambda2 followed by lambda1 (lambda2-lambda1), and lambda1 with
+  lambda2 simultaneously (lambda1+lambda2).  Tuning of the penalty
+  parameters is done by the optL1 or optL2 functions of the penalized R
+  package.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+  Returns a matrix with the following columns:
+  \item{L1}{optimized value of the L1 penalty parameter}
+  \item{L2}{optimized value of the L2 penalty parameter}
+  \item{cvl}{optimized cross-validated likelihood}
+  \item{convergence}{0 if the optimization converged, non-zero otherwise
+    (see stats:optim for details)}
+  \item{fncalls}{number of calls to cvl function during optimization}
+  \item{coef_1, coef_2, ..., coef_n}{argmax coefficients for the model
+    with this value of the tuning parameter}
+
+  The matrix contains one row for each repeat of the regression.
 }
 \references{
-%% ~put references to the literature/web site here ~
+Waldron L., Pintilie M., Huttenhower C.*, and Jurisica I.*   Optimized
+application of penalized regression methods to diverse genomic
+data. (2010). Under review.  (*equal contribution)
 }
 \author{
-%%  ~~who you are~~
+Levi Waldron et al.
 }
 \note{
-%%  ~~further notes~~
+Depends on the R packages: penalized, snow, rlecuyer
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -63,195 +85,86 @@ opt2D(nsim, L1range = c(0.001, 100), L2range = c(0.001, 100), dofirst = "both", 
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+data(beer.exprs)
+data(beer.survival)
 
-## The function is currently defined as
-function(nsim,L1range=c(0.001,100),L2range=c(0.001,100),dofirst="both",nprocessors=1,L1gridsize=10,L2gridsize=10,...){
-  opt.L1L2 <- function(lambdarange,usemin=TRUE,...){
-    library(penalized)
-    library(survival)
-    minL1 <- min(lambdarange[1:2])
-    maxL1 <- max(lambdarange[1:2])
-    minL2 <- min(lambdarange[3:4])
-    maxL2 <- max(lambdarange[3:4])
-    if(usemin){
-#      opt1 <- try(optL1(lambda2=minL2,minlambda1=minL1,maxlambda1=maxL1,...))
-      opt1 <- try(optL1(lambda2=minL2,minlambda1=minL1,...)) #testcode
-    }else{
-#      opt1 <- try(optL1(lambda2=maxL2,minlambda1=minL1,maxlambda1=maxL1,...))
-#      opt1 <- try(optL1(lambda2=maxL2,minlambda1=minL1,...)) #testcode
-    }
-#    opt2 <- try(optL2(lambda1=opt1$lambda,minlambda2=minL2,maxlambda2=maxL2,...))
-    opt2 <- try(optL2(lambda1=opt1$lambda,...)) #testcode
-    if(class(opt1)!="try-error"&class(opt2)!="try-error"){
-      L1=opt1$lambda
-      L2=opt2$lambda
-      cvall <- opt2$cvl
-      is.standardized <- list(...)$standardize
-      cc <- coefficients(opt2$fullfit,"all",standardize=is.standardized)
-      output <- c(L1,L2,cvall,cc)
-      names(output)[1:3] <- c("L1","L2","cvl")
-      return(output)
-    } else{
-      return(rep(NA,3+ncol(list(...)$penalized)))
-    }      
-  }
-  opt.L2L1 <- function(lambdarange,usemin=TRUE,...){
-    library(penalized)
-    library(survival)
-    minL1 <- min(lambdarange[1:2])
-    maxL1 <- max(lambdarange[1:2])
-    minL2 <- min(lambdarange[3:4])
-    maxL2 <- max(lambdarange[3:4])
-    if(usemin){
-#      opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,maxlambda2=maxL2,...))
-      opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,...)) #testcode
-    }else{
-#      opt2 <- try(optL2(lambda1=maxL1,minlambda2=minL2,maxlambda2=maxL2,...))
-      opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,...)) #testcode
-    }
-#    opt1 <- try(optL1(lambda2=opt2$lambda,minlambda1=minL1,maxlambda1=maxL1,...))
-    opt1 <- try(optL1(lambda2=opt2$lambda,...)) #testcode
-    if(class(opt1)!="try-error"&class(opt2)!="try-error"){
-      L2=opt2$lambda
-      L1=opt1$lambda
-      cvall <- opt1$cvl
-      is.standardized <- list(...)$standardize
-      cc <- coefficients(opt1$fullfit,"all",standardize=is.standardized)
-      output <- c(L1,L2,cvall,cc)
-      names(output)[1:3] <- c("L1","L2","cvl")
-      return(output)
-    } else{
-      return(rep(NA,3+ncol(list(...)$penalized)))
-    }
-  }
-  opt.both <- function(lambdarange,...){
-    #lambdarange[1:2] to be boundaries for lambda1,
-    #lambdarange[3:4] to be boundaries for lambda2
-    #lambdarange[5:6] to be the starting point for optimization,
-    library(penalized)
-    library(survival)
-    getfolds <- function(N,nfolds){
-      evenly <- nfolds * N\%/\%nfolds
-      extras <- N - evenly
-      groupsize <- evenly/nfolds
-      evenly.folds <- rep(1:nfolds,groupsize)
-      evenly.folds <- sample(evenly.folds,size=length(evenly.folds))
-      extra.folds <- sample(1:nfolds,size=extras)
-      folds <- c(evenly.folds,extra.folds)
-      return(folds)
-    }
-    myargs <- list(...)
-    if(is.null(myargs$fold)){
-      myargs$fold <- 1:nrow(myargs$penalized)
-      warning("fold argument missing, assuming leave-one-out cross-validation")
-    }
-    if(all.equal(length(myargs$fold),1)){
-      myfolds <- getfolds(N=nrow(myargs$penalized),nfolds=myargs$fold)
-      myargs$fold <- myfolds
-    }
-    if(!all.equal(length(myargs$fold),nrow(myargs$penalized))){
-      stop("fold must be a single integer or a string of length equal to the number of samples.")
-    }
-    if(is.null(myargs$standardize)){
-      myargs$standardize <- FALSE
-      warning("standardize not specified, so no standardization performed (standardize=FALSE for cvl() function")
-    }
-    cvl.simple <- function(x1,x2,...){
-      trycvl <- try(cvl(lambda1=x1,lambda2=x2,...))
-      if(class(trycvl)=="try-error"){
-        print(paste("warning: try-error, faking cvl =",-10000))
-        return(list(cvl=-10000))
-      }else{
-        if(trycvl$cvl < (-1e12)){
-          print(paste("warning: cvl set to -1e12, was",trycvl$cvl))
-          trycvl$cvl <- (-1e12)
-        }
-        return(trycvl)
-      }
-    }
-    fun.fit <- function(x,myargs){do.call(cvl.simple,c(x,myargs))}
-    fun.cvlonly <- function(x,myargs){do.call(cvl.simple,c(x,myargs))$cvl}
-    opt.out <- try(optim(par=lambdarange[5:6],
-                     fn=fun.cvlonly,
-                     method="L-BFGS-B",
-                     lower=c(lambdarange[1],lambdarange[3]),
-                     upper=c(lambdarange[2],lambdarange[4]),
-                     myargs=myargs,
-                     #factr=1e12 for very fast convergence -  1e10 or 11 for very accurate
-                     control=list(fnscale=-1,maxit=50,factr=1e11,trace=0)))  #trace=6 for full info
-    if(class(opt.out)=="try-error"){
-      output <- rep(NA,nrow(penalized)+5)
-      names(output) <- c("L1","L2","cvl","convergence","fncalls",rownames(mylist$penalized))
-    }else{
-      L1 <- opt.out$par[1]
-      L2 <- opt.out$par[2]
-      cvall <- opt.out$value
-      convergence <- opt.out$convergence
-      fncalls <- opt.out$counts[1]
-      fit <- fun.fit(opt.out$par,myargs)$fullfit
-      cc <- coefficients(fit,"all",standardize=myargs$standardize)
-      output <- c(opt.out$par,opt.out$value,opt.out$convergence,opt.out$counts[1],cc)
-      names(output)[1:5] <- c("L1","L2","cvl","convergence","fncalls")
-    }
-    return(output)
-  }
-  #the next line seems like a complicated way just to copy L1range and L2range into nsim elements of the list "looplist", which will be used to replicate the simulations:
-  looplist <- lapply(1:nsim,function(x,...){return(as.numeric(...))},c(L1range,L2range))
-  #now do the optimization, whichever method was chosen.
-  if(identical(dofirst,"L1")){
-    FUN <- opt.L1L2
-  } else if(identical(dofirst,"L2")){
-    FUN <- opt.L2L1
-  } else if(identical(dofirst,"both")){
-    FUN <- opt.both
-    print("scanning for good starting points for 2-D optimization...")
-    #Use a clipped lambdarange for scanning, scanning with very small values of lambda1
-    #and lambda2 can be *very* slow.
-    L1range.clipped <- L1range
-    L2range.clipped <- L2range
-    if(min(L1range)<1){
-      L1range.clipped[which.min(L1range.clipped)] <- 1
-    }
-    if(min(L2range)<1){
-      L2range.clipped[which.min(L2range.clipped)] <- 1
-    }
-    print("Scanning L1 and L2 for good start points for 2D optimization.")
-    print("Note: not scanning values of L1 or L2 less than 1 to speed computation, but optimization can still converge on values less than 1 if the minimum range is less than 1.")
-    print(paste("Scanning L1 between",paste(L1range.clipped,collapse="-")))
-    print(paste("Scanning L2 between",paste(L2range.clipped,collapse="-")))
-    cvlmatrix <- scan.l1l2(L1range=L1range.clipped,L2range=L2range.clipped,L1.ngrid=L1gridsize,L2.ngrid=L2gridsize,nprocessors=nprocessors,polydegree=1,...)$cvl
-    ranking <- matrix(rank(-cvlmatrix,ties="random"),ncol=ncol(cvlmatrix))
-    top.positions <- lapply(1:5,function(n) which(ranking==n,arr.ind=TRUE))
-    top.positions <- lapply(top.positions,function(x) as.numeric(c(L1range,L2range,rownames(cvlmatrix)[x[1]],colnames(cvlmatrix)[x[2]])))
-    startpositions <- t(sapply(top.positions,function(x) x[5:6]))
-    colnames(startpositions) <- c("lambda1","lambda2")
-    print("done scanning.  The following start positions will be used:")
-    print(startpositions)
-    #randomly sample the top 5 positions to provide starting points for the nsim optimizations
-    looplist <- sample(top.positions,nsim,replace=TRUE)
-  }else stop("dofirst must be one of L1, L2, or both")
-  if(nprocessors>1){
-    library(snow)
-    library(rlecuyer)
-    cl <- makeCluster(nprocessors, type="SOCK")
-    myseed=round(2^32*runif(6)) #rlecuyer wants a vector of six seeds according to the SNOW manual
-    clusterSetupRNG(cl,seed=myseed)
-    print(paste("beginning simulations on",nprocessors,"processors..."))
-    output <- parSapply(cl,looplist,function(x,...){FUN(x,...)},...)
-    stopCluster(cl)
-  } else{
-    print("beginning simulations on one processor...")
-    output <- sapply(looplist,function(x,...){FUN(x,...)},...)
-  }
-  print("finished simulations.")
-  output <- t(output)
-  return(output)
-  }
+gene.quant <- apply(beer.exprs,1,quantile,probs=0.75)
+dat.filt <- dat.raw[gene.quant>log2(100),]
+gene.iqr <- apply(dat.filt,1,IQR)
+dat.filt <- as.matrix(dat.filt[gene.iqr>0.5,])
+dat.final <- scale(t(dat.filt))
+
+##define training and test sets
+set.seed(9)
+trainingset <- sample(rownames(dat.final),round(nrow(dat.final)/2))
+testset <- rownames(dat.final)[!rownames(dat.final)%in%trainingset]
+
+dat.training <- data.frame(dat.final[trainingset,])
+pheno.training <- beer.survival[trainingset,]
+
+library(survival)
+surv.training <- Surv(pheno.training$os,pheno.training$status)
+
+
+dat.test <- data.frame(dat.final[testset,])
+all.equal(colnames(dat.training),colnames(dat.test))
+pheno.test <- beer.survival[testset,]
+surv.test <- Surv(pheno.test$os,pheno.test$status)
+
+library(penalized)
+set.seed(10)
+
+system.time(output <- opt1D(nsim=50, L1range=c(0.1,300),L2range=c(1,400), dofirst="both", nprocessors=8, response=surv.training,penalized=dat.training, fold=10,positive=FALSE,standardize=FALSE))
+
+cc <- output[which.max(output[,"cvl"]),-1:-6]
+
+preds.training <- as.matrix(dat.training) %*% cc
+preds.training.median <- median(preds.training)
+preds.training.dichot <- ifelse(preds.training > preds.training.median,"high risk","low risk")
+preds.training.dichot <- factor(preds.training.dichot[,1],levels=c("low risk","high risk"))
+preds.test <- as.matrix(dat.test) %*% cc
+preds.test.dichot <- ifelse(preds.test > preds.training.median,"high risk","low risk")
+preds.test.dichot <- factor(preds.test.dichot[,1],levels=c("low risk","high risk"))
+
+coxphfit.training <- coxph(surv.training~preds.training.dichot)
+survfit.training <- survfit(surv.training~preds.training.dichot)
+summary(coxphfit.training)
+coxphfit.test <- coxph(surv.test~preds.test.dichot)
+survfit.test <- survfit(surv.test~preds.test.dichot)
+summary(coxphfit.test)
+
+(p.training <- signif(summary(coxphfit.training)$logtest[3],2))  #likelihood ratio test
+(hr.training <- signif(summary(coxphfit.training)$conf.int[1],2))
+(hr.lower.training <- summary(coxphfit.training)$conf.int[3])
+(hr.upper.training <- summary(coxphfit.training)$conf.int[4])
+plot(survfit.training[2],
+     conf.int=FALSE,
+     xlab="Months",
+     main="TRAINING",
+     ylab="Overall survival",
+     col="red")
+lines(survfit.training[1],col="black")
+xmax <- par("usr")[2]
+text(x=xmax,y=0.9,lab=paste("HR=",hr.training),pos=2)
+text(x=xmax,y=0.8,lab=paste("p=",p.training,"",sep=""),pos=2)
+tmp <- summary(preds.training.dichot)
+text(x=c(xmax,xmax),y=c(0.7,0.6),lab=paste(tmp,names(tmp)),col=1:2,pos=2)
+(p.test <- signif(summary(coxphfit.test)$logtest[3],2))  #likelihood ratio test
+(hr.test <- signif(summary(coxphfit.test)$conf.int[1],2))
+(hr.lower.test <- summary(coxphfit.test)$conf.int[3])
+(hr.upper.test <- summary(coxphfit.test)$conf.int[4])
+plot(survfit.test[2],
+     conf.int=FALSE,
+     xlab="Months",
+     main="TEST",
+     col="red")
+lines(survfit.test[1],col="black")
+xmax <- par("usr")[2]
+text(x=xmax,y=0.95,lab=paste("HR=",hr.test),pos=2)
+text(x=xmax,y=0.85,lab=paste("p=",p.test,"",sep=""),pos=2)
+tmp <- summary(preds.test.dichot)
+text(x=c(xmax,xmax),y=c(0.7,0.6),lab=paste(tmp,names(tmp)),col=1:2,pos=2)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+
+\keyword{ regression }
+\keyword{ survival }

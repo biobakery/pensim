@@ -4,8 +4,7 @@
 \docType{package}
 \title{
 Functions and data for simulation of high-dimensional data and
-parallelized penalized regression based on the penalized R package
-(Lasso, Ridge, Elastic Net).
+parallelized repeated penalized regression
 }
 \description{
 Simulation of continuous, correlated high-dimensional data with

@@ -2,10 +2,14 @@
 \alias{scan.l1l2}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Function calculate cross-validated likelihood on a regular grid of L1/L2 penalties
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function generates a grid of values of L1/L2 penalties,
+then calculated cross-validated likelihood at each point on the grid.
+The grid can be regular (linear progression of the penalty values), or
+polynomial (finer grid for small penalty values, and coarser grid for
+larger penalty values).
 }
 \usage{
 scan.l1l2(L1range = c(0.1, 100.1), L2range = c(0.1, 100.1), L1.ngrid = 50, L2.ngrid = 50, nprocessors = 1, polydegree = 1, ...)
@@ -13,31 +17,44 @@ scan.l1l2(L1range = c(0.1, 100.1), L2range = c(0.1, 100.1), L1.ngrid = 50, L2.ng
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{L1range}{
-%%     ~~Describe \code{L1range} here~~
+    numeric vector of length two, giving minimum and maximum constraints
+    on the L1 penalty
 }
   \item{L2range}{
-%%     ~~Describe \code{L2range} here~~
+    numeric vector of length two, giving minimum and maximum constraints
+    on the L2 penalty
 }
   \item{L1.ngrid}{
-%%     ~~Describe \code{L1.ngrid} here~~
+    Number of values of the L1 penalty in the regular grid of L1/L2 penalties
 }
   \item{L2.ngrid}{
-%%     ~~Describe \code{L2.ngrid} here~~
+    Number of values of the L2 penalty in the regular grid of L1/L2 penalties
 }
   \item{nprocessors}{
-%%     ~~Describe \code{nprocessors} here~~
+        An integer number of processors to use.
 }
   \item{polydegree}{
-%%     ~~Describe \code{polydegree} here~~
+    power of the polynomial on which the L1/L2 penalty values are fit.
+    ie if polydegree=2, penalty values could be y=x^2, x=1,2,3,..., so y=1,4,9,...
 }
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+    arguments passed on to cvl function of the penalized R package
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+  This function sets up a SNOW (Simple Network of Workstations) "sock"
+  cluster to parallelize the task of scanning a grid of penalty values
+  to search for suitable starting values for two-dimensional
+  optimization of the Elastic Net.
 }
 \value{
+  \item{cvl}{matrix of cvl values along the grid}
+  \item{L1range}{L1range,L2range}{L2range}
+  \item{xlab}{A note giving the range of L1 penalties}
+  \item{ylab}{A note giving the range of L2 penalties}
+  \item{zlab}{A note giving the range of cvl values}
+  \item{note}{A note to the user that rows of cvl correspond to values of lambda1, columns to lambda2}
+	    
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
