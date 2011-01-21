@@ -15,31 +15,28 @@ simulateData(nvars = c(100, 100, 100, 100, 600), cors = c(0.8, 0, 0.8, 0, 0), as
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{nvars}{
-    A vector argument of the number of variables in each variable group.
-}
-  \item{cors}{
-    A numeric vector of population pairwise Pearson correlation within
-    each group, of the same length as the nvars vector.
-}
-  \item{associations}{
-    A numeric vector of associations of each variable group with the
-    response variable, of the same length as the nvars vector.
-}
-  \item{firstonly}{
-    A logical vector of the same length as the nvars vector.  It
-    indicates for each group whether each member has an association with
-    response (FALSE), or only the first member (TRUE).
-}
-  \item{nsamples}{
-    An integer value giving the number of samples to simulate.
-}
+  \item{nvars}{integer vector giving the number of variables of each
+    variable type.  The number of variable types is equal to the length
+    of this vector.}
+  \item{cors}{integer vector of the same length as nvars, giving the population pairwise Pearson
+    correlation within each group.}
+  \item{associations}{integer vector of the same length as nvars, giving the associations of each
+    type with outcome}
+  \item{firstonly}{logical vector of the same length as nvars, specifying whether only the first variable
+    of each type is associated with outcome (TRUE) or all variables of that
+    type (FALSE)}
+  \item{nsamples}{an integer giving the number of observations}
+  \item{response}{either "timetoevent" or "binary"}
+  \item{basehaz}{baseline hazard, used for "timetoevent"}
+  \item{logisticintercept}{intercept which is added to X\%*\%Beta for "binary"}
 }
 \details{
-  This function simulates a high-dimensional dataset with groups of
-  potentially collinear variables, with known associations to a binary
-  or time-to-event response.
-  ***more details here***
+  This function simulates "predictor" variables in one or more groups, which are standard
+  normally distributed.  The user can specify the population correlation
+  within each variable group, the association of each variable group to
+  outcome, and whether the first or all variables of that type should be
+  associated with outcome.  The simulated response variable can be time to event
+  with an exponential distribution, or binary survival with a logistic distribution.
 }
 \value{
 %%  ~Describe the value returned
