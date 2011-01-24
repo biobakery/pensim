@@ -2,8 +2,7 @@
 \alias{create.data}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to simulate correlated predictors with specified associations with
- time-to-event or binary outcome
+Function to simulate correlated predictors with specified associations with time-to-event or binary outcome
 }
 \description{
   This function creates multiple groups of predictor variables which may
@@ -11,7 +10,7 @@ Function to simulate correlated predictors with specified associations with
   censoring) response according to specified weights of the predictors.
 }
 \usage{
-simulateData(nvars = c(100, 100, 100, 100, 600), cors = c(0.8, 0, 0.8, 0, 0), associations = c(0.5, 0.5, 0.3, 0.3, 0), firstonly = c(TRUE, FALSE, TRUE, FALSE, FALSE), nsamples = 100, response = "timetoevent", basehaz = 0.2, logisticintercept = 0)
+create.data(nvars = c(100, 100, 100, 100, 600), cors = c(0.8, 0, 0.8, 0, 0), associations = c(0.5, 0.5, 0.3, 0.3, 0), firstonly = c(TRUE, FALSE, TRUE, FALSE, FALSE), nsamples = 100, response = "timetoevent", basehaz = 0.2, logisticintercept = 0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -63,14 +62,16 @@ data. (2010). Under review.  (*equal contribution)
 % %% ~~objects to See Also as \code{\link{help}}, ~~~
 % }
 \examples{
-x <-
-simulateData(nvars=10,cors=0,associations=1,firstonly=TRUE,nsamples=1000,response="binary")
+set.seed(9)
+x <- create.data(nvars=c(15,5),cors=c(0,0.8),associations=c(0,2),firstonly=c(TRUE,TRUE),nsamples=50,response="binary",logisticintercept=0.5)
 summary(x)
 x$summary
 model <- glm(outcome ~ ., data=x$data,family=binomial)
 summary(model)
-
+dat <- t(as.matrix(x$data)[,-match("outcome",colnames(x$data))])
+heatmap(dat,ColSideColors=ifelse(x$data$outcome==0,"black","white"))
+}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ datagen }
-\keyword{ survival }% __ONLY ONE__ keyword per line
+\keyword{ survival }

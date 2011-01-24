@@ -42,9 +42,18 @@ data. (2010). Under review.  (*equal contribution)
 \keyword{ multivariate }
 
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+%%\code{\link[snow:makeCluster]{snow package (simple network of workstations)}}
 }
 \examples{
-~~ simple examples of the most important functions ~~
+set.seed(9)
+##create some data, with one of a group of five correlated variables
+##having an association with the binary outcome:
+x <- create.data(nvars=c(15,5),cors=c(0,0.8),associations=c(0,2),firstonly=c(TRUE,TRUE),nsamples=50,response="binary",logisticintercept=0.5)
+x$summary
+##predictor data frame and binary response vector
+pen.data <- x$data[,-match("outcome",colnames(x$data))]
+response <- x$data[,match("outcome",colnames(x$data))]
+##lasso regression
+output <- opt1D(nsim=10,nprocessors=2,penalized=pen.data,response=response)
+cc <- output[which.max(output[,"cvl"]),-1:-3]  ##non-zero b.* are true positives
 }

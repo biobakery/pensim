@@ -88,23 +88,24 @@ Depends on the R packages: penalized, snow, rlecuyer
 data(beer.exprs)
 data(beer.survival)
 
+##apply an unreasonably strict gene filter here to speed computation
+##time for the Elastic Net example.
 gene.quant <- apply(beer.exprs,1,quantile,probs=0.75)
-dat.filt <- dat.raw[gene.quant>log2(100),]
+dat.filt <- beer.exprs[gene.quant>log2(150),]
 gene.iqr <- apply(dat.filt,1,IQR)
-dat.filt <- as.matrix(dat.filt[gene.iqr>0.5,])
-dat.final <- scale(t(dat.filt))
+dat.filt <- as.matrix(dat.filt[gene.iqr>1,])
+dat.final <- scale(t(dat.filt))  #only 151 genes left
 
 ##define training and test sets
 set.seed(9)
 trainingset <- sample(rownames(dat.final),round(nrow(dat.final)/2))
-testset <- rownames(dat.final)[!rownames(dat.final)%in%trainingset]
+testset <- rownames(dat.final)[!rownames(dat.final)\%in\%trainingset]
 
 dat.training <- data.frame(dat.final[trainingset,])
 pheno.training <- beer.survival[trainingset,]
 
 library(survival)
 surv.training <- Surv(pheno.training$os,pheno.training$status)
-
 
 dat.test <- data.frame(dat.final[testset,])
 all.equal(colnames(dat.training),colnames(dat.test))
@@ -114,9 +115,12 @@ surv.test <- Surv(pheno.test$os,pheno.test$status)
 library(penalized)
 set.seed(10)
 
-system.time(output <- opt1D(nsim=50, L1range=c(0.1,300),L2range=c(1,400), dofirst="both", nprocessors=8, response=surv.training,penalized=dat.training, fold=10,positive=FALSE,standardize=FALSE))
+system.time(output <- opt2D(nsim=10, L1range=c(0.01,200),L2range=c(0.01,200), dofirst="both", nprocessors=8, response=surv.training,penalized=dat.training, fold=10,positive=FALSE,standardize=FALSE))
 
-cc <- output[which.max(output[,"cvl"]),-1:-6]
+cc <- output[which.max(output[,"cvl"]),-1:-5]
+output[which.max(output[,"cvl"]),1:5]  #small L1, large L2
+sum(abs(cc)>0)  #all 151 coefficients are non-zero
+
 
 preds.training <- as.matrix(dat.training) %*% cc
 preds.training.median <- median(preds.training)
@@ -149,6 +153,9 @@ text(x=xmax,y=0.9,lab=paste("HR=",hr.training),pos=2)
 text(x=xmax,y=0.8,lab=paste("p=",p.training,"",sep=""),pos=2)
 tmp <- summary(preds.training.dichot)
 text(x=c(xmax,xmax),y=c(0.7,0.6),lab=paste(tmp,names(tmp)),col=1:2,pos=2)
+## now the test set.
+## in the test set, HR=1.7 is not significant - not surprising with the
+## overly strict non-specific pre-filter (IQR>1, 75th percentile > log2(150)
 (p.test <- signif(summary(coxphfit.test)$logtest[3],2))  #likelihood ratio test
 (hr.test <- signif(summary(coxphfit.test)$conf.int[1],2))
 (hr.lower.test <- summary(coxphfit.test)$conf.int[3])

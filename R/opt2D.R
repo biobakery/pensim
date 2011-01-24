@@ -1,20 +1,13 @@
 opt2D <-
 function(nsim,L1range=c(0.001,100),L2range=c(0.001,100),dofirst="both",nprocessors=1,L1gridsize=10,L2gridsize=10,...){
-  opt.L1L2 <- function(lambdarange,usemin=TRUE,...){
+  opt.L1L2 <- function(lambdarange,...){
     library(penalized)
     library(survival)
     minL1 <- min(lambdarange[1:2])
     maxL1 <- max(lambdarange[1:2])
     minL2 <- min(lambdarange[3:4])
     maxL2 <- max(lambdarange[3:4])
-    if(usemin){
-#      opt1 <- try(optL1(lambda2=minL2,minlambda1=minL1,maxlambda1=maxL1,...))
-      opt1 <- try(optL1(lambda2=minL2,minlambda1=minL1,...)) #testcode
-    }else{
-#      opt1 <- try(optL1(lambda2=maxL2,minlambda1=minL1,maxlambda1=maxL1,...))
-#      opt1 <- try(optL1(lambda2=maxL2,minlambda1=minL1,...)) #testcode
-    }
-#    opt2 <- try(optL2(lambda1=opt1$lambda,minlambda2=minL2,maxlambda2=maxL2,...))
+    opt1 <- try(optL1(lambda2=minL2,minlambda1=minL1,...)) #testcode
     opt2 <- try(optL2(lambda1=opt1$lambda,...)) #testcode
     if(class(opt1)!="try-error"&class(opt2)!="try-error"){
       L1=opt1$lambda
@@ -29,21 +22,14 @@ function(nsim,L1range=c(0.001,100),L2range=c(0.001,100),dofirst="both",nprocesso
       return(rep(NA,3+ncol(list(...)$penalized)))
     }      
   }
-  opt.L2L1 <- function(lambdarange,usemin=TRUE,...){
+  opt.L2L1 <- function(lambdarange,...){
     library(penalized)
     library(survival)
     minL1 <- min(lambdarange[1:2])
     maxL1 <- max(lambdarange[1:2])
     minL2 <- min(lambdarange[3:4])
     maxL2 <- max(lambdarange[3:4])
-    if(usemin){
-#      opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,maxlambda2=maxL2,...))
-      opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,...)) #testcode
-    }else{
-#      opt2 <- try(optL2(lambda1=maxL1,minlambda2=minL2,maxlambda2=maxL2,...))
-      opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,...)) #testcode
-    }
-#    opt1 <- try(optL1(lambda2=opt2$lambda,minlambda1=minL1,maxlambda1=maxL1,...))
+    opt2 <- try(optL2(lambda1=minL1,minlambda2=minL2,...)) #testcode
     opt1 <- try(optL1(lambda2=opt2$lambda,...)) #testcode
     if(class(opt1)!="try-error"&class(opt2)!="try-error"){
       L2=opt2$lambda
@@ -115,7 +101,7 @@ function(nsim,L1range=c(0.001,100),L2range=c(0.001,100),dofirst="both",nprocesso
                      control=list(fnscale=-1,maxit=50,factr=1e11,trace=0)))  #trace=6 for full info
     if(class(opt.out)=="try-error"){
       output <- rep(NA,nrow(penalized)+5)
-      names(output) <- c("L1","L2","cvl","convergence","fncalls",rownames(mylist$penalized))
+      names(output) <- c("L1","L2","cvl","convergence","fncalls",rownames(myargs$penalized))
     }else{
       L1 <- opt.out$par[1]
       L2 <- opt.out$par[2]

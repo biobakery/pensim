@@ -1,5 +1,5 @@
 create.data <-
-function(nvars=c(100,100,100,100,600),cors=c(0.8,0,0.8,0,0),associations=c(0.5,0.5,0.3,0.3,0),firstonly=c(T,F,T,F,F),nsamples=40){
+  function(nvars=c(100,100,100,100,600),cors=c(0.8,0,0.8,0,0),associations=c(0.5,0.5,0.3,0.3,0),firstonly=c(TRUE,FALSE,TRUE,FALSE,FALSE),nsamples=100,response="timetoevent",basehaz=0.2,logisticintercept=0){
   #check that the input variables are appropriate
   if(class(nvars)!="numeric") stop("nvars must be a numeric vector")
   if(class(cors)!="numeric") stop("cors must be a numeric vector")
@@ -52,11 +52,16 @@ function(nvars=c(100,100,100,100,600),cors=c(0.8,0,0.8,0,0),associations=c(0.5,0
   colnames(x.out) <- names(wts)
   # calculate time to recurrence
   betaX <- x.out%*%wts
-  h=0.2*exp(betaX[,1])  #betaX is a one-column matrix; use the first column
   # convert x.out to a dataframe to make adding new columns easy
   x.out <- data.frame(x.out)
-  x.out$time <- rexp(length(h),h)
-  x.out$cens <- 1
+  #calculate response
+  if(identical(response,"timetoevent")){
+    h=basehaz*exp(betaX[,1])  #betaX is a one-column matrix; use the first column
+    x.out$time <- rexp(length(h),h)
+    x.out$cens <- 1
+  }else if(identical(response,"binary")){
+    p <- 1/(1+exp(-(betaX+logisticintercept)))
+    x.out$outcome <- rbinom(length(p),1,p)
+  }else stop("response must be either timetoevent or binary")
   return(list(summary=definecors,associations=wts,covariance=Sigma,data=x.out))
 }
-

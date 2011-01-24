@@ -64,7 +64,7 @@ data(beer.exprs)
 data(beer.survival)
 
 gene.quant <- apply(beer.exprs,1,quantile,probs=0.75)
-dat.filt <- dat.raw[gene.quant>log2(100),]
+dat.filt <- beer.exprs[gene.quant>log2(100),]
 gene.iqr <- apply(dat.filt,1,IQR)
 dat.filt <- as.matrix(dat.filt[gene.iqr>0.5,])
 dat.final <- scale(t(dat.filt))
@@ -72,7 +72,7 @@ dat.final <- scale(t(dat.filt))
 ##define training and test sets
 set.seed(9)
 trainingset <- sample(rownames(dat.final),round(nrow(dat.final)/2))
-testset <- rownames(dat.final)[!rownames(dat.final)%in%trainingset]
+testset <- rownames(dat.final)[!rownames(dat.final)\%in\%trainingset]
 
 dat.training <- data.frame(dat.final[trainingset,])
 pheno.training <- beer.survival[trainingset,]
@@ -90,7 +90,8 @@ library(penalized)
 set.seed(10)
 system.time(output <- opt1D(nsim=50,nprocessors=8,setpen="L1",response=surv.training,penalized=dat.training,fold=10,positive=FALSE,standardize=FALSE,minlambda1=3))
 
-cc <- output[which.max(output[,"cvl"]),-(1:2)]
+cc <- output[which.max(output[,"cvl"]),-(1:2)]  #coefficients
+sum(abs(cc)>0)  #14 are non-zero
 
 preds.training <- as.matrix(dat.training) %*% cc
 preds.training.median <- median(preds.training)
