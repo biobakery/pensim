@@ -122,11 +122,11 @@ output[which.max(output[,"cvl"]),1:5]  #small L1, large L2
 sum(abs(cc)>0)  #all 151 coefficients are non-zero
 
 
-preds.training <- as.matrix(dat.training) %*% cc
+preds.training <- as.matrix(dat.training) \%*\% cc
 preds.training.median <- median(preds.training)
 preds.training.dichot <- ifelse(preds.training > preds.training.median,"high risk","low risk")
 preds.training.dichot <- factor(preds.training.dichot[,1],levels=c("low risk","high risk"))
-preds.test <- as.matrix(dat.test) %*% cc
+preds.test <- as.matrix(dat.test) \%*\% cc
 preds.test.dichot <- ifelse(preds.test > preds.training.median,"high risk","low risk")
 preds.test.dichot <- factor(preds.test.dichot[,1],levels=c("low risk","high risk"))
 
