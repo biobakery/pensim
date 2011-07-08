@@ -2,7 +2,6 @@ opt.splitval <-
   function(optFUN="opt1D",testset="equal",scaling=TRUE,...){
     library(pensim)
     extra.vars <- list(...)
-    if (!class(extra.vars$penalized)=="data.frame") stop("penalized object must be specified as a dataframe")
     if(testset[1]=="equal"){
       testset <- rep(TRUE,nrow(extra.vars$penalized))
       testset[sample(1:nrow(extra.vars$penalized),round(nrow(extra.vars$penalized)/2))] <- FALSE
