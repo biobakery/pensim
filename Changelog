@@ -4,3 +4,5 @@
 
 1.0.3: Updated author list, added labelswapprob option and extra checking of
 user input to create.data().
+
+1.1.0: Added opt.nested.crossval and opt.splitval functions.

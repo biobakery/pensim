@@ -43,7 +43,9 @@ opt.splitval <-
     }else{
       preds.test <- as.matrix(penalized.test) %*% cc
     }
-    return(preds.test)
+    output <- preds.test[,1]
+    names(output) <- rownames(preds.test)
+    return(output)
   }
 
 
