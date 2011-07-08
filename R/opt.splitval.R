@@ -1,5 +1,6 @@
 opt.splitval <-
   function(optFUN="opt1D",testset="equal",scaling=TRUE,...){
+    library(pensim)
     extra.vars <- list(...)
     if (!class(extra.vars$penalized)=="data.frame") stop("penalized object must be specified as a dataframe")
     if(testset[1]=="equal"){
@@ -46,10 +47,4 @@ opt.splitval <-
     return(preds.test)
   }
 
-tmp <- data.frame(testvar1=1:nrow(dat.training),
-                  testvar2=c(rep(1,20),rep(2,nrow(dat.training)-20)))
-
-opt.splitval(nsim=2,optFUN="opt1D",testset=1:2,
-             setpen="L2",
-             response=surv.training,penalized=dat.training,fold=2,positive=FALSE,standardize=FALSE,trace=FALSE)
 
