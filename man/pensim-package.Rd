@@ -7,22 +7,22 @@ Functions and data for simulation of high-dimensional data and parallelized repe
 }
 \description{
 Simulation of continuous, correlated high-dimensional data with
-time-to-event or binary response, and parallelized functions Lasso,
-Ridge, and Elastic Net penalized regression.
+time-to-event or binary response, and parallelized functions for Lasso,
+Ridge, and Elastic Net penalized regression model training and
+validation by split-sample or nested cross-validation.
 }
 \details{
 \tabular{ll}{
 Package: \tab pensim\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2011-01-20\cr
+Version: \tab 1.1.0\cr
+Date: \tab 2011-07-08\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
-This package contains a function for simulation of correlated
-high-dimensional data with binary or time-to-event response, and
-functions for parallelized repeated optimizations of Lasso, Ridge, and
-Elastic Net penalized regression penalties.
+Model training and validation by Lasso, Ridge, and Elastic Net penalized
+regression.   This package also contains a function for simulation of correlated
+high-dimensional data with binary or time-to-event response
 }
 \author{
 Levi Waldron

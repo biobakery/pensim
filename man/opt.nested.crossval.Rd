@@ -1,22 +1,16 @@
 \name{opt.nested.crossval}
-\alias{opt.splitval}
-%- Also NEED an '\alias' for EACH other topic documented here.
+\alias{opt.nested.crossval}
 \title{Parallelized calculation of cross-validated risk score
-  predictions or split training/test set predictions from L1/L2/Elastic
-  Net penalized regression.
+  predictions from L1/L2/Elastic Net penalized regression.
 }
 \description{
-  opt.nested.crossval: calculates risk score predictions by a nested cross-validation, using
+  calculates risk score predictions by a nested cross-validation, using
   the optL1 and optL2 functions of the penalized R package for
   regression.  In the outer level of cross-validation, samples are split
   into training and test samples.  Model parameters are tuned by cross-validation within
-  training samples only. By setting nprocessors > 1, the outer
-  cross-validation is split between multiple processors.
+  training samples only.
 
-  opt.splitval: uses a single training/test split to train a penalized
-  regression model in the training samples, then use the model to
-  calculate values of the linear risk score in the test samples.  This
-  function is used by opt.nested.crossval, but can also be used on its own.
+  By setting nprocessors > 1, the outer cross-validation is split between multiple processors.
 
   The functions support z-score scaling of training data, and application
   of these scaling and shifting coefficients to the test data.  It also
@@ -24,8 +18,7 @@
   model with greatest cross-validated likelihood.
 }
 \usage{
-opt.nested.crossval(outerfold=10,nprocessors=1,optFUN="opt1D",scaling=TRUE,...)
-opt.splitval(optFUN="opt1D",testset="equal",scaling=TRUE,...)
+opt.nested.crossval(outerfold=10,nprocessors=1,...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,32 +30,6 @@ opt.splitval(optFUN="opt1D",testset="equal",scaling=TRUE,...)
     opt.nested.crossval, iterations of the outer cross-validation are
     sent to different processors.  If specified in opt.splitval,
     repeated starts for the penalty tuning are sent to different processors.
-  }
-  \item{optFUN}{
-    "opt1D" for Lasso or Ridge regression, "opt2D" for Elastic Net.  See
-    the help pages for these functions for additional arguments.
-  }
-  \item{testset}{
-    For the opt.splitval function ONLY.
-    "equal" for randomly assigned equal training and test sets, or an
-    integer vector defining the positions of the test samples in the
-    response, penalized, and unpenalized arguments which are passed to
-    the optL1, optL2, or cvl functions of the penalized R package.
-  }
-  \item{scaling}{
-    If TRUE, each feature (column) of the training samples (in
-    matrix/dataframe specified by the penalized argument) are scaled to
-    z-scores, then these scaling and shifting factors are applied to the
-    test data.
-    If FALSE, no scaling is done.
-  }
-  \item{setpen}{
-    Either "L1" (Lasso) or "L2" (Ridge) penalty.  This argument is used
-    by the opt1D function of the pensim R package if optFUN equals "opt1D"
-  }
-  \item{L1range, L2range, dofirst, L1gridsize, L2gridsize}{
-    These arguments are used by the opt2D function if optFUN equals
-    "opt2D"
   }
   \item{\dots}{
     optFUN (either "opt1D" or "opt2D"), scaling (TRUE to z-score
@@ -78,14 +45,39 @@ opt.splitval(optFUN="opt1D",testset="equal",scaling=TRUE,...)
 \details{
   This function calculates cross-validated risk score predictions,
   tuning a penalized regression model using the optL1 or optL2 functions
-  of the penalized R package, for each
-  iteration of the cross-validation.  Tuning is done by cross-validation
-  in the training samples only.  Test samples are scaled using the shift
-  and scale factors determined from the training samples.
-  parameter.  If nprocessors > 1, it uses the SNOW package for
-  parallelization, dividing the iterations of the outer cross-validation
-  among the specified number of processors.
-}
+  of the penalized R package, for each iteration of the
+  cross-validation.  Tuning is done by cross-validation in the training
+  samples only.  Test samples are scaled using the shift and scale
+  factors determined from the training samples.  parameter.  If
+  nprocessors > 1, it uses the SNOW package for parallelization,
+  dividing the iterations of the outer cross-validation among the
+  specified number of processors.
+
+  Some arguments MUST be passed (through the ... arguments) but which
+  are documented for the functions in which they are used.  These
+  include, from the opt.splitval function:
+  
+  optFUN="opt1D" for Lasso or Ridge regression, or "opt2D" for Elastic
+  Net.  See the help pages for opt1D and opt2D for additional
+  arguments associated with these functions.
+    
+  scaling=TRUE to scale each feature (column) of the training sample to
+  z-scores.  These same scaling and shifting factors are applied to the
+  test data.  If FALSE, no scaling is done.  Note that only data in the
+  penalized argument are scaled, not the optional unpenalized argument
+  (see documentation for opt1D, opt2D, or cvl from the penalized package
+  for descriptions of the penalized and unpenalized arguments).
+
+  nsim=50 this number specifies the number of times to repeat tuning of
+  the penalty parameters on different data foldings for the
+  cross-validation.
+
+  setpen="L1" or "L2" : if optFUN="opt1D", this sets regression type to
+  LASSO or Ridge, respectively.  See ?opt1D.
+
+  L1range, L2range, dofirst, L1gridsize, L2gridsize: options for Elastic
+  Net regression if optFUN="opt2D".  See ?opt2D.
+  }
 \value{
   Returns a vector of cross-validated continuous risk score predictions.
 }
@@ -119,22 +111,10 @@ dat.filt <- t(dat.filt)
 library(survival)
 surv.obj <- Surv(beer.survival$os,beer.survival$status)
 
-##Single split training/test evaluation
-set.seed(1)
-preds50 <- opt.splitval(optFUN="opt1D",scaling=TRUE,testset="equal",
-             setpen="L1",nsim=16,nprocessors=4,
-             response=surv.obj,penalized=dat.filt,fold=10,positive=FALSE,standardize=FALSE,trace=FALSE)
-
-preds50.dichot <- preds50 > median(preds50)
-
-surv.obj.50 <- surv.obj[match(names(preds50),rownames(beer.survival))]
-coxfit50.continuous <- coxph(surv.obj.50~preds50)
-coxfit50.dichot <- coxph(surv.obj.50~preds50.dichot)
-summary(coxfit50.continuous)
-summary(coxfit50.dichot)
-
-
 ##Cross-validated calculation and assessment of risk scores
+##Ideally nsim would be 50, and outerfold and fold would be
+##10, but the values below speed computation 40x compared to these
+##recommended values.
 set.seed(1)
 preds <- opt.nested.crossval(outerfold=5,nprocessors=1,
              optFUN="opt1D",scaling=TRUE,
@@ -159,7 +139,7 @@ if(require(survivalROC)){
   abline(0,1)
 }
 ##clean-up
-rm(nobs,cutoff,preds.roc,coxfit.dichot,coxfit.continuous,preds,preds.dichot,coxfit50.dichot,coxfit50.continuous,preds50,preds50.dichot,surv.obj,surv.obj.50,dat.filt,gene.iqr,gene.quant)
+rm(nobs,cutoff,preds.roc,coxfit.dichot,coxfit.continuous,preds,preds.dichot,dat.filt,gene.iqr,gene.quant)
 }
 \keyword{ regression }
 \keyword{ survival }
