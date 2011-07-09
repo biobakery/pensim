@@ -6,3 +6,5 @@
 user input to create.data().
 
 1.1.0: Added opt.nested.crossval and opt.splitval functions.
+
+1.1.1: Implemented uninformative censoring in create.data.

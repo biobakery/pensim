@@ -15,14 +15,14 @@ validation by split-sample or nested cross-validation.
 \tabular{ll}{
 Package: \tab pensim\cr
 Type: \tab Package\cr
-Version: \tab 1.1.0\cr
+Version: \tab 1.1.1\cr
 Date: \tab 2011-07-08\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
 Model training and validation by Lasso, Ridge, and Elastic Net penalized
 regression.   This package also contains a function for simulation of correlated
-high-dimensional data with binary or time-to-event response
+high-dimensional data with binary or time-to-event response.
 }
 \author{
 Levi Waldron
