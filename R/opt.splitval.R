@@ -13,12 +13,12 @@ opt.splitval <-
     if("unpenalized" %in% names(extra.vars)){
       unpenalized.training <- extra.vars$unpenalized[trainingset,]
     }
-    pheno.training <- extra.vars$response[trainingset,]
+    pheno.training <- extra.vars$response[trainingset]
     penalized.test <- extra.vars$penalized[testset,]
     if("unpenalized" %in% names(extra.vars)){
       unpenalized.test <- extra.vars$unpenalized[testset,]
     }
-    pheno.test <- extra.vars$response[testset,]
+    pheno.test <- extra.vars$response[testset]
     if(scaling){
       penalized.training <- scale(penalized.training)
       ##use scaling factors determined in training set to scale the test set:
@@ -35,7 +35,9 @@ opt.splitval <-
     ##regression call:
     output <- do.call(get(optFUN),args=extra.vars)
     ##coefficients:
-    cc <- output[which.max(output[,"cvl"]),-(1:2)]  #coefficients
+    output <- do.call(get(optFUN), args = extra.vars)
+    cc <- output[which.max(output[, "cvl"]),]
+    cc <- cc[match(colnames(extra.vars$penalized),names(cc))]
     ##predictions in test set:
     if("unpenalized" %in% names(extra.vars)){
       dat.test <- cbind(unpenalized.test,penalized.test)

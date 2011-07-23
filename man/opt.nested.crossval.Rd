@@ -113,12 +113,12 @@ surv.obj <- Surv(beer.survival$os,beer.survival$status)
 
 ##Cross-validated calculation and assessment of risk scores
 ##Ideally nsim would be 50, and outerfold and fold would be
-##10, but the values below speed computation 40x compared to these
+##10, but the values below speed computation 200x compared to these
 ##recommended values.
 set.seed(1)
 preds <- opt.nested.crossval(outerfold=5,nprocessors=1,
              optFUN="opt1D",scaling=TRUE,
-             setpen="L1",nsim=5,
+             setpen="L1",nsim=1,
              response=surv.obj,penalized=dat.filt,fold=5,positive=FALSE,standardize=FALSE,trace=FALSE)
 
 preds.dichot <- preds > median(preds)

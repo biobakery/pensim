@@ -15,8 +15,8 @@ validation by split-sample or nested cross-validation.
 \tabular{ll}{
 Package: \tab pensim\cr
 Type: \tab Package\cr
-Version: \tab 1.1.1\cr
-Date: \tab 2011-07-08\cr
+Version: \tab 1.1.3\cr
+Date: \tab 2011-07-10\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -53,6 +53,6 @@ x$summary
 pen.data <- x$data[,-match("outcome",colnames(x$data))]
 response <- x$data[,match("outcome",colnames(x$data))]
 ##lasso regression
-output <- opt1D(nsim=10,nprocessors=2,penalized=pen.data,response=response)
+output <- opt1D(nsim=10,nprocessors=1,penalized=pen.data,response=response)
 cc <- output[which.max(output[,"cvl"]),-1:-3]  ##non-zero b.* are true positives
 }
