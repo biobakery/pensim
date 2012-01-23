@@ -67,6 +67,8 @@ opt.nested.crossval(outerfold=10,nprocessors=1,...)
   penalized argument are scaled, not the optional unpenalized argument
   (see documentation for opt1D, opt2D, or cvl from the penalized package
   for descriptions of the penalized and unpenalized arguments).
+  Alternatively, the standardize=TRUE argument to the penalized package
+  functions can be used to do scaling internally.
 
   nsim=50 this number specifies the number of times to repeat tuning of
   the penalty parameters on different data foldings for the
@@ -118,7 +120,7 @@ testfit <- optL1(response=surv.obj,
                  penalized=dat.filt,
                  fold=5,
                  positive=FALSE,
-                 standardize=FALSE,
+                 standardize=TRUE,
                  trace=TRUE)
 
 ## Now pass these arguments to opt.nested.splitval() for cross-validated
@@ -128,29 +130,36 @@ testfit <- optL1(response=surv.obj,
 ##    optFUN and scaling (?opt.splitval)
 ##    setpen and nsim (?opt1D)
 
-## Ideally nsim would be 50, and outerfold and fold would be
-## 10, but the values below speed computation 200x compared to these
-## recommended values.
+## Ideally nsim would be 50, and outerfold and fold would be 10, but the
+## values below speed computation 200x compared to these recommended
+## values.  Note that here we are using the standardize=TRUE argument of
+## optL1 rather than the scaling=TRUE argument of opt.splitval.  These
+## two approaches to scaling are roughly equivalent, but the scaling
+## approaches are not the same (scaling=TRUE does z-score,
+## standardize=TRUE scales to unit central L2 norm), and results will
+## not be identical.  Also, using standardize=TRUE scales variables but
+## provides coeffients for the original scale, whereas using
+## scaling=TRUE scales variables in the training set then applies the
+## same scales to the test set.
 set.seed(1)
 preds <- opt.nested.crossval(outerfold=5,nprocessors=1,  #opt.nested.crossval arguments
-             optFUN="opt1D",scaling=TRUE,                #opt.splitval arguments
+             optFUN="opt1D",scaling=FALSE,               #opt.splitval arguments
              setpen="L1",nsim=1,                         #opt1D arguments
              response=surv.obj,                          #rest are penalized::optl1 arguments
              penalized=dat.filt,
              fold=5,
              positive=FALSE,
-             standardize=FALSE,
+             standardize=TRUE,
              trace=FALSE)
 
 ## We probably also want the coefficients from the model fit on all the
 ## data, for future use:
-beer.coefs <- opt1D(scaling=TRUE,                
-             setpen="L1",nsim=1,                        
+beer.coefs <- opt1D(setpen="L1",nsim=1,                        
              response=surv.obj,                         
              penalized=dat.filt,
              fold=5,
              positive=FALSE,
-             standardize=FALSE,
+             standardize=TRUE,
              trace=FALSE)
 
 ## We can also include unpenalized covariates, if desired.
@@ -165,9 +174,9 @@ beer.coefs <- opt1D(setpen="L1",nsim=1,
              unpenalized=dat.filt[1],  
              fold=5,
              positive=FALSE,
-             standardize=FALSE,
+             standardize=TRUE,
              trace=FALSE)
-
+## (note the non-zero first coefficient this time, due to it being unpenalized).
 
 ## Summarization and plotting.
 preds.dichot <- preds > median(preds)

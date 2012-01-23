@@ -9,14 +9,15 @@ Functions and data for simulation of high-dimensional data and parallelized repe
 Simulation of continuous, correlated high-dimensional data with
 time-to-event or binary response, and parallelized functions for Lasso,
 Ridge, and Elastic Net penalized regression model training and
-validation by split-sample or nested cross-validation.
+validation by split-sample or nested cross-validation.  See the help
+page for opt.nested.crossval() for the most extensive usage examples.
 }
 \details{
 \tabular{ll}{
 Package: \tab pensim\cr
 Type: \tab Package\cr
-Version: \tab 1.1.4\cr
-Date: \tab 2011-07-10\cr
+Version: \tab 1.2.0\cr
+Date: \tab 2012-01-22\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
