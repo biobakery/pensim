@@ -44,6 +44,15 @@ opt2D(nsim,
   \item{L2gridsize}{
     Number of values of the L2 penalty in the regular grid of L1/L2 penalties
 }
+  \item{cl}{
+    Optional cluster object created with the makeCluster() function of
+    the snow package.  If this is not set, pensim calls
+    makeCluster(nprocessors, type="SOCK").   Setting this parameter
+    can enable parallelization in more diverse scenarios than multi-core
+    desktops; see the documentation for the snow package.  Note that if
+    cl is user-defined, this function will not automatically run
+    snow::stopCluster() to shut down the cluster.
+}
   \item{\dots}{
     arguments passed on to optL1 and optL2 (dofirst="L1" or "L2"), or
     cvl (dofirst="both") functions of the penalized R package

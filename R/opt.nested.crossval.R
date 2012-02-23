@@ -1,5 +1,5 @@
 opt.nested.crossval <-
-  function(outerfold=10,nprocessors=1,...){
+  function(outerfold=10,nprocessors=1,cl=NULL,...){
     library(pensim)
     extra.vars <- list(...)
     getfolds <-
@@ -14,11 +14,14 @@ opt.nested.crossval <-
         return(folds)
       }
     folds <- getfolds(nrow(extra.vars$penalized),nfolds=outerfold)
-    if(nprocessors>1){
-      nprocessors <- as.integer(round(nprocessors))
+  clusterIsSet <- "cluster" %in% class(cl)
+  if(nprocessors>1 | clusterIsSet){
       library(snow)
       library(rlecuyer)
-      cl <- makeCluster(nprocessors, type="SOCK")
+      if(!clusterIsSet){
+        nprocessors <- as.integer(round(nprocessors))
+        cl <- makeCluster(nprocessors, type="SOCK")
+      }
       myseed=round(2^32*runif(6)) ##rlecuyer wants a vector of six seeds according to the SNOW manual
       tmp <- try(clusterSetupRNG(cl,seed=myseed))
       if(class(tmp) == "try-error") warning("rlecuyer is not properly configured on your system; child nodes may not produce random numbers independently.  Debug using rlecuyer examples if you are concerned about this, or use leave-one-out cross-validation.")
@@ -29,7 +32,9 @@ opt.nested.crossval <-
         output <- do.call(opt.splitval,args=extra.vars)
         return(output)
       },extra.vars=extra.vars),silent=TRUE)
-      stopCluster(cl)
+      if(!clusterIsSet){
+        stopCluster(cl)
+      }
     }else{
       ##one processor
       ##do the nested cross-validation
