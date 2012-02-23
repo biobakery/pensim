@@ -16,7 +16,9 @@ opt2D(nsim,
       L2range = c(0.001, 100),
       dofirst = "both",
       nprocessors = 1,
-      L1gridsize = 10, L2gridsize = 10, ...)
+      L1gridsize = 10, L2gridsize = 10,
+      cl = NULL,
+      ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -126,7 +128,6 @@ all.equal(colnames(dat.training),colnames(dat.test))
 pheno.test <- beer.survival[testset,]
 surv.test <- Surv(pheno.test$os,pheno.test$status)
 
-library(penalized)
 set.seed(1)
 ##ideally set nsim=50, fold=10, but this takes 100x longer.
 system.time(output <- opt2D(nsim=1, L1range=c(0.01,10),L2range=c(0.01,200), dofirst="both", nprocessors=1, response=surv.training,penalized=dat.training, fold=5,positive=FALSE,standardize=TRUE))

@@ -1,0 +1,3 @@
+importFrom(snow, makeCluster, stopCluster)
+importFrom(penalized, optL1, optL2, cvl, coefficients)
+export(opt1D, opt2D, opt.nested.crossval, create.data, opt.splitval, scan.l1l2)

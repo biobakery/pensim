@@ -16,7 +16,7 @@ page for opt.nested.crossval() for the most extensive usage examples.
 \tabular{ll}{
 Package: \tab pensim\cr
 Type: \tab Package\cr
-Version: \tab 1.2.2\cr
+Version: \tab 1.2.4\cr
 Date: \tab 2012-02-23\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr

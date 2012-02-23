@@ -17,7 +17,9 @@ scan.l1l2(L1range = c(0.1, 100.1),
           L1.ngrid = 50,
           L2.ngrid = 50,
           nprocessors = 1,
-          polydegree = 1, ...)
+          polydegree = 1,
+          cl = NULL,
+          ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

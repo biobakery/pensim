@@ -18,7 +18,7 @@
   model with greatest cross-validated likelihood.
 }
 \usage{
-opt.nested.crossval(outerfold=10,nprocessors=1,...)
+opt.nested.crossval(outerfold=10,nprocessors=1,cl=NULL,...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

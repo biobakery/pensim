@@ -9,7 +9,7 @@ penalized R package, useful for parallelized repeated tuning of the
 penalty parameters.
 }
 \usage{
-opt1D(nsim = 50, nprocessors = 1, setpen = "L1", ...)
+opt1D(nsim = 50, nprocessors = 1, setpen = "L1", cl = NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -94,7 +94,6 @@ all.equal(colnames(dat.training),colnames(dat.test))
 pheno.test <- beer.survival[testset,]
 surv.test <- Surv(pheno.test$os,pheno.test$status)
 
-library(penalized)
 ##ideally nsim should be on the order of 50, but this slows computation
 ##50x without parallelization.
 set.seed(2)
