@@ -83,6 +83,7 @@ It is recommended first to establish the arguments for the penalized regression 
 
 @ 
 <<lassotest>>=
+library(penalized)
 testfit <- optL1(response=surv.obj,
                  penalized=dat.filt,
                  fold=5,

@@ -125,6 +125,7 @@ surv.obj <- Surv(beer.survival$os,beer.survival$status)
 
 ## First, test the regression arguments using functions from
 ## the penalized package:
+library(penalized)
 testfit <- optL1(response=surv.obj,
                  penalized=dat.filt,
                  fold=5,
