@@ -46,7 +46,9 @@ penalized-package
 set.seed(9)
 ##create some data, with one of a group of five correlated variables
 ##having an association with the binary outcome:
-x <- create.data(nvars=c(10,3),cors=c(0,0.8),associations=c(0,2),firstonly=c(TRUE,TRUE),nsamples=50,response="binary",logisticintercept=0.5)
+x <- create.data(nvars=c(10,3),cors=c(0,0.8),
+  associations=c(0,2),firstonly=c(TRUE,TRUE),nsamples=50,
+  response="binary",logisticintercept=0.5)
 x$summary
 ##predictor data frame and binary response vector
 pen.data <- x$data[,-match("outcome",colnames(x$data))]

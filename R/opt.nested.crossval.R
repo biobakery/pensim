@@ -17,7 +17,6 @@ opt.nested.crossval <-
   if(nprocessors>1 | clusterIsSet){
       if(!clusterIsSet){
         nprocessors <- as.integer(round(nprocessors))
-        library(snow)
         cl <- makeCluster(nprocessors, type="SOCK")
       }
       myseed=round(2^32*runif(6)) ##rlecuyer wants a vector of six seeds according to the SNOW manual
