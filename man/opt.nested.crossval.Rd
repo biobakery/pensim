@@ -129,8 +129,7 @@ surv.obj <- Surv(beer.survival$os,beer.survival$status)
 
 ## First, test the regression arguments using functions from
 ## the penalized package:
-library(penalized)
-testfit <- optL1(response=surv.obj,
+testfit <- penalized::optL1(response=surv.obj,
                  penalized=dat.filt,
                  fold=5,
                  positive=FALSE,
@@ -212,7 +211,8 @@ if(require(survivalROC)){
 }
 
 ## clean-up
-rm(nobs,cutoff,preds.roc,coxfit.dichot,coxfit.continuous,preds,preds.dichot,dat.filt,gene.iqr,gene.quant)
+rm(nobs,cutoff,preds.roc,coxfit.dichot,coxfit.continuous,preds,
+   preds.dichot,dat.filt,gene.iqr,gene.quant)
 }
 \keyword{ regression }
 \keyword{ survival }

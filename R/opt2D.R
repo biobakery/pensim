@@ -148,7 +148,6 @@ function(nsim,L1range=c(0.001,100),L2range=c(0.001,100),dofirst="both",nprocesso
   if(nprocessors>1 | clusterIsSet){
     if(!clusterIsSet){
       nprocessors <- as.integer(round(nprocessors))
-      library(snow)
       cl <- makeCluster(nprocessors, type="SOCK")
     }
     myseed=round(2^32*runif(6)) #rlecuyer wants a vector of six seeds according to the SNOW manual

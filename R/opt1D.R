@@ -5,7 +5,6 @@ function(nsim=50,nprocessors=1,setpen="L1",cl=NULL,...){
   if(nprocessors>1 | clusterIsSet){
     if(!clusterIsSet){
       nprocessors <- as.integer(round(nprocessors))
-      library(snow)
       cl <- makeCluster(nprocessors, type="SOCK")
     }
     myseed=round(2^32*runif(6)) ##rlecuyer wants a vector of six seeds according to the SNOW manual

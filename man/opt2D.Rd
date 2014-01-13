@@ -134,7 +134,9 @@ surv.test <- Surv(pheno.test$os,pheno.test$status)
 
 set.seed(1)
 ##ideally set nsim=50, fold=10, but this takes 100x longer.
-system.time(output <- opt2D(nsim=1, L1range=c(0.01,10),L2range=c(0.01,200), dofirst="both", nprocessors=1, response=surv.training,penalized=dat.training, fold=5,positive=FALSE,standardize=TRUE))
+system.time(output <- opt2D(nsim=1, L1range=c(0.01,10),
+L2range=c(0.01,200), dofirst="both", nprocessors=1,  
+response=surv.training,penalized=dat.training, fold=5,positive=FALSE,standardize=TRUE))
 
 cc <- output[which.max(output[,"cvl"]),-1:-5]
 output[which.max(output[,"cvl"]),1:5]  #small L1, large L2

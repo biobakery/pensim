@@ -81,7 +81,9 @@ data. (2010). Under review.  (*equal contribution)
 \examples{
 ##binary outcome example
 set.seed(9)
-x <- create.data(nvars=c(15,5),cors=c(0,0.8),associations=c(0,2),firstonly=c(TRUE,TRUE),nsamples=50,response="binary",logisticintercept=0.5)
+x <- create.data(nvars=c(15,5),cors=c(0,0.8),associations=c(0,2),
+                 firstonly=c(TRUE,TRUE),nsamples=50,response="binary",
+		 logisticintercept=0.5)
 summary(x)
 x$summary
 model <- glm(outcome ~ ., data=x$data,family=binomial)

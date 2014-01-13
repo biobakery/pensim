@@ -101,7 +101,9 @@ surv.test <- Surv(pheno.test$os,pheno.test$status)
 ##ideally nsim should be on the order of 50, but this slows computation
 ##50x without parallelization.
 set.seed(2)
-system.time(output <- opt1D(nsim=1,nprocessors=1,setpen="L1",response=surv.training,penalized=dat.training,fold=10,positive=FALSE,standardize=TRUE,minlambda1=3))
+system.time(output <- opt1D(nsim=1,nprocessors=1,setpen="L1",response=surv.training,
+ penalized=dat.training,fold=10,positive=FALSE,standardize=TRUE,
+ minlambda1=3))
 
 cc <- output[which.max(output[,"cvl"]),-(1:2)]  #coefficients
 sum(abs(cc)>0)  #count non-zero coefficients
