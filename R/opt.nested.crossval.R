@@ -20,7 +20,7 @@ opt.nested.crossval <-
         cl <- makeCluster(nprocessors, type="SOCK")
       }
       myseed=round(2^32*runif(6)) ##rlecuyer wants a vector of six seeds according to the SNOW manual
-      tmp <- try(clusterSetupRNG(cl,seed=myseed))
+      tmp <- try(nextRNGStream(cl,seed=myseed))
       if(class(tmp) == "try-error") warning("rlecuyer is not properly configured on your system; child nodes may not produce random numbers independently.  Debug using rlecuyer examples if you are concerned about this, or use leave-one-out cross-validation.")
       ##do the nested cross-validation
       output.all <- try(parLapply(cl,unique(folds),function(iFold,extra.vars){

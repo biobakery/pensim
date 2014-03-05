@@ -151,7 +151,7 @@ function(nsim,L1range=c(0.001,100),L2range=c(0.001,100),dofirst="both",nprocesso
       cl <- makeCluster(nprocessors, type="SOCK")
     }
     myseed=round(2^32*runif(6)) #rlecuyer wants a vector of six seeds according to the SNOW manual
-    tmp <- try(clusterSetupRNG(cl,seed=myseed))
+    tmp <- try(nextRNGStream(cl,seed=myseed))
     if(class(tmp) == "try-error") warning("rlecuyer is not properly configured on your system; child nodes may not produce random numbers independently.  Debug using rlecuyer examples if you are concerned about this, or use leave-one-out cross-validation.")
 print(paste("beginning simulations on",nprocessors,"processors..."))
     output <- parSapply(cl,looplist,function(x,...){FUN(x,...)},...)

@@ -67,7 +67,7 @@ opt.splitval(optFUN="opt1D",testset="equal",scaling=TRUE,...)
   Levi Waldron et al.
 }
 \note{
-  Depends on the R packages: penalized, snow, rlecuyer
+  Depends on the R packages: penalized, parallel, rlecuyer
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

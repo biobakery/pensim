@@ -46,12 +46,12 @@ scan.l1l2(L1range = c(0.1, 100.1),
   }
   \item{cl}{
     Optional cluster object created with the makeCluster() function of
-    the snow package.  If this is not set, pensim calls
+    the parallel package.  If this is not set, pensim calls
     makeCluster(nprocessors, type="SOCK").   Setting this parameter
     can enable parallelization in more diverse scenarios than multi-core
-    desktops; see the documentation for the snow package.  Note that if
+    desktops; see the documentation for the parallel package.  Note that if
     cl is user-defined, this function will not automatically run
-    snow::stopCluster() to shut down the cluster.
+    parallel::stopCluster() to shut down the cluster.
 }
   \item{\dots}{
     arguments passed on to cvl function of the penalized R package
@@ -81,7 +81,7 @@ scan.l1l2(L1range = c(0.1, 100.1),
   Levi Waldron et al.
 }
 \note{
-  Depends on the R packages: penalized, snow, rlecuyer
+  Depends on the R packages: penalized, parallel, rlecuyer
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

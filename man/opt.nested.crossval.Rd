@@ -33,12 +33,12 @@ opt.nested.crossval(outerfold=10,nprocessors=1,cl=NULL,...)
   }
   \item{cl}{
     Optional cluster object created with the makeCluster() function of
-    the snow package.  If this is not set, pensim calls
+    the parallel package.  If this is not set, pensim calls
     makeCluster(nprocessors, type="SOCK").   Setting this parameter
     can enable parallelization in more diverse scenarios than multi-core
-    desktops; see the documentation for the snow package.  Note that if
+    desktops; see the documentation for the parallel package.  Note that if
     cl is user-defined, this function will not automatically run
-    snow::stopCluster() to shut down the cluster.
+    parallel::stopCluster() to shut down the cluster.
 }
   \item{\dots}{
     optFUN (either "opt1D" or "opt2D"), scaling (TRUE to z-score
@@ -101,7 +101,7 @@ opt.nested.crossval(outerfold=10,nprocessors=1,cl=NULL,...)
   Levi Waldron et al.
 }
 \note{
-  Depends on the R packages: penalized, snow, rlecuyer
+  Depends on the R packages: penalized, parallel, rlecuyer
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
